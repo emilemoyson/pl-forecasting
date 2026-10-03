@@ -2,7 +2,6 @@
 
 Predicts Premier League matches, tests the predictions on past seasons, and compares them against the betting market.
 
-Work in progress for the ieNYC x DataCamp "Master in Claude" challenge (Fall 2026).
 
 ## Setup
 
