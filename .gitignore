@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Raw downloaded data is rebuilt by the collect scripts, not committed
+data/raw/
+data/processed/
+
+# Local / secrets
+.env
+.DS_Store
