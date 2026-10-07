@@ -79,7 +79,7 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 - Outputs: four notes in `docs/research/`, suggestions in `suggestions.md`.
 - Done when: R1 names a concrete source for this weekend's odds, or says clearly there isn't a free one.
 
-### [ ] 1.3 Scoreboard
+### [x] 1.3 Scoreboard
 - Who: main agent. Emile's time: 10 min.
 - Inputs: any predictions file in the standard format, plus `matches.parquet`.
 - Outputs: `src/evaluate/scoreboard.py` returning log loss, Brier score, accuracy, and a calibration chart (10 bins) saved to `outputs/`.

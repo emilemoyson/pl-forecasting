@@ -4,3 +4,4 @@
 2026-10-03: Closing line value = Bet365 pre-match vs market average closing.
 2026-10-07: Canonical team names are the Understat full names. Reason: readability in the dashboard.
 2026-10-07: Matches are joined on season + home + away (canonical names), goals and dates come from football-data. Reason: each pairing happens once per season so the key is unique, and football-data is the source of the odds we score against.
+2026-10-07: Brier score is the multi-class version, summed over home / draw / away (range 0 to 2, one third each gives 0.667). Log loss floors p at 1e-15. Calibration pools all three outcomes into 10 equal-width bins. Reason: standard definitions, comparable with published football results.
