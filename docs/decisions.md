@@ -3,3 +3,4 @@
 2026-10-03: Paper bets placed at Bet365 pre-match odds. Reason: a real price one bookmaker offered before kickoff. Market max only as an upper-bound sensitivity check.
 2026-10-03: Closing line value = Bet365 pre-match vs market average closing.
 2026-10-07: Canonical team names are the Understat full names. Reason: readability in the dashboard.
+2026-10-07: Matches are joined on season + home + away (canonical names), goals and dates come from football-data. Reason: each pairing happens once per season so the key is unique, and football-data is the source of the odds we score against.
