@@ -85,7 +85,7 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 - Outputs: `src/evaluate/scoreboard.py` returning log loss, Brier score, accuracy, and a calibration chart (10 bins) saved to `outputs/`.
 - Done when: tests with hand-made examples pass (100% on the right result gives log loss 0, one third each gives about 1.099).
 
-### [ ] 1.4 Market and baseline on the backtest seasons (STOP)
+### [x] 1.4 Market and baseline on the backtest seasons (STOP)
 - Who: main agent. Emile's time: 20 min.
 - Market: market average closing odds, margin removed by proportional normalisation, for 2023-24 to 2025-26.
 - Baseline: home / draw / away frequencies from all seasons before the one being predicted.
