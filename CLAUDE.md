@@ -101,6 +101,15 @@ tests/           pytest
 - Ask before big or irreversible choices. Do not guess at scope.
 - Prose he will reuse (README, write-up, docs) must sound natural and never use em dashes.
 
+## Workflow
+
+- `docs/plan.md` is the roadmap. Follow it one step at a time, in order.
+- After each step, run the `data-checker` subagent. Tick the step `[x]` in `docs/plan.md` only when it passes.
+- At every step marked **STOP**, summarise the results and wait until Emile replies before going on.
+- The `researcher` only suggests changes, as `proposed` lines in `docs/research/suggestions.md`. It never edits the plan. Only Emile marks a suggestion accepted or rejected.
+- Subagents live in `.claude/agents/`: `data-checker`, `researcher`, `news-checker`.
+- Every matchweek gets an entry in `docs/weekly_log.md`.
+
 ## Current step
 
 Week 1 (Oct 3 to 9): setup, data, master table, scoreboard, market + baseline, Elo, first live predictions for Matchweek 7 (Oct 17), pushed before the first kickoff.
