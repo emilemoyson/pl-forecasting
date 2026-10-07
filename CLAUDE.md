@@ -10,7 +10,7 @@ The market comparison is the heart of the project. When in doubt, spend effort t
 2. **No leakage.** Every input to a prediction must be known before kickoff. Each feature is built from matches with `date < kickoff` only. If unsure whether something leaks, stop and ask.
 3. **Odds are never a model feature.** They are only the benchmark.
 4. **Time order only.** No random train/test splits, no shuffling. Walk-forward: train up to matchweek t, predict t+1, repeat.
-5. **Raw data is read-only.** Download once into `data/raw/`, never edit it, never re-download on every run. All cleaning happens in code and writes to `data/processed/`.
+5. **Raw data is read-only.** Never edit files in `data/raw/`. Completed seasons are downloaded once and never again. The current season (2026-27) is re-downloaded before each matchweek, overwriting only the current-season files, for both football-data and Understat. All cleaning happens in code and writes to `data/processed/`.
 6. **Paper trading only.** Hypothetical flat stakes, no real money.
 7. **Small steps.** Build only the current step. Do not add models, pages or agents that were not asked for.
 
@@ -103,4 +103,4 @@ tests/           pytest
 
 ## Current step
 
-Week 1 (Oct 3 to 9): setup, data, master table, scoreboard, market + baseline, Elo, first live predictions for Matchweek 6 pushed before Oct 10.
+Week 1 (Oct 3 to 9): setup, data, master table, scoreboard, market + baseline, Elo, first live predictions for Matchweek 7 (Oct 17), pushed before the first kickoff.
