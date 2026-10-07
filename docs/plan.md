@@ -74,7 +74,7 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 ### [x] 1.1 Master matches table
 - Done on 7 Oct (commit 961a785). `data/processed/matches.parquet`, 4,610 matches.
 
-### [ ] 1.2 Research R1 to R4
+### [x] 1.2 Research R1 to R4
 - Who: researcher (can run while 1.3 is being built). Emile's time: 15 min to read.
 - Outputs: four notes in `docs/research/`, suggestions in `suggestions.md`.
 - Done when: R1 names a concrete source for this weekend's odds, or says clearly there isn't a free one.
