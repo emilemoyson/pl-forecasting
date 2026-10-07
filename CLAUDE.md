@@ -112,4 +112,4 @@ tests/           pytest
 
 ## Current step
 
-Week 1 (Oct 3 to 9): setup, data, master table, scoreboard, market + baseline, Elo, first live predictions for Matchweek 7 (Oct 17), pushed before the first kickoff.
+Phase 1 of `docs/plan.md`: first live predictions for Matchweek 6 (baseline, Elo, market), pushed before Fri 9 Oct 23:00 UTC. First kickoff Sat 10 Oct 11:30 UTC.
