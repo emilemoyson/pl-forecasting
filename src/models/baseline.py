@@ -35,6 +35,16 @@ def predict_season(matches: pd.DataFrame, season: str) -> pd.DataFrame:
     return to_standard(target["match_id"], probs, MODEL, VERSION)
 
 
+def predict_fixtures(matches: pd.DataFrame, fixtures: pd.DataFrame) -> pd.DataFrame:
+    """Upcoming fixtures (match_id, season) -> standard rows from all earlier seasons' frequencies."""
+    if fixtures["season"].nunique() != 1:
+        raise ValueError("fixtures must all be in one season")
+    season = fixtures["season"].iloc[0]
+    history = matches[matches["season"] < season].dropna(subset=["home_goals", "away_goals"])
+    probs = np.tile(outcome_shares(history), (len(fixtures), 1))
+    return to_standard(fixtures["match_id"], probs, MODEL, VERSION)
+
+
 def main() -> None:
     matches = load_matches()
     preds = pd.concat([predict_season(matches, s) for s in BACKTEST_SEASONS], ignore_index=True)

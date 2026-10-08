@@ -64,6 +64,10 @@ class EloParams:
                 f"_pb{self.pull_back:g}_off{self.promoted_offset:g}")
 
 
+# Accepted at decision D1 (2026-10-08). Used for live predictions.
+ACCEPTED = EloParams(k=20, hfa=0, goal_mult="sqrt", pull_back=0.1, promoted_offset=0)
+
+
 def goal_multiplier(goal_diff: int, kind: str) -> float:
     """G in the update. Draws and 1-goal wins give 1; bigger wins move ratings more."""
     n = abs(int(goal_diff))
@@ -187,6 +191,27 @@ def backtest(matches: pd.DataFrame, p: EloParams) -> tuple[pd.DataFrame, pd.Data
     frames = [to_standard(rated.loc[rated["season"] == s, "match_id"], preds[s], MODEL, p.version())
               for s in BACKTEST_SEASONS]
     return pd.concat(frames, ignore_index=True), rated, ratings
+
+
+def predict_fixtures(matches: pd.DataFrame, fixtures: pd.DataFrame,
+                     p: EloParams = ACCEPTED) -> tuple[pd.DataFrame, dict[str, float]]:
+    """Upcoming fixtures (match_id, season, home, away) -> standard rows and the ratings used.
+
+    Ratings come from every played match. The ordered logit is fitted on all
+    seasons before the fixtures' season (burn-in excluded).
+    """
+    if fixtures["season"].nunique() != 1:
+        raise ValueError("fixtures must all be in one season")
+    season = fixtures["season"].iloc[0]
+    rated, ratings = run_elo(matches, p)
+    if season not in set(rated["season"]):
+        raise ValueError(f"no played matches in {season} yet; promoted teams have no rating")
+    missing = sorted((set(fixtures["home"]) | set(fixtures["away"])) - set(ratings))
+    if missing:
+        raise ValueError(f"no Elo rating for {missing}")
+    rows = fixtures.assign(elo_diff=(fixtures["home"].map(ratings) - fixtures["away"].map(ratings)) / 100)
+    fit = fit_ordered_logit(rated[(rated["season"] > BURN_IN_SEASON) & (rated["season"] < season)])
+    return to_standard(rows["match_id"], predict_hda(fit, rows), MODEL, p.version()), ratings
 
 
 def main() -> None:

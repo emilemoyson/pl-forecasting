@@ -36,5 +36,23 @@ def download_all() -> None:
         print(f"{season_code}: saved {out_path.name} ({len(season_df)} rows)")
 
 
+CURRENT_SEASON = "2026-27"
+
+
+def refresh_current_season() -> None:
+    """Re-fetch the current season only (bypassing the cache) and overwrite its CSV.
+
+    Refuses to overwrite with fewer matches than the file already has.
+    """
+    reader = sd.Understat(leagues=LEAGUE, seasons=[CURRENT_SEASON], data_dir=RAW_DIR, no_cache=True)
+    df = reader.read_team_match_stats().reset_index()
+    for season_code, season_df in df.groupby("season"):
+        out_path = RAW_DIR / f"understat_{season_code}.csv"
+        if out_path.exists() and len(season_df) < sum(1 for _ in out_path.open()) - 1:
+            raise RuntimeError(f"new {out_path.name} has fewer rows than the existing one; not overwriting")
+        season_df.to_csv(out_path, index=False)
+        print(f"{season_code}: refreshed {out_path.name} ({len(season_df)} rows)")
+
+
 if __name__ == "__main__":
     download_all()

@@ -12,3 +12,6 @@ data/processed/
 # Local / secrets
 .env
 .DS_Store
+
+# Pipeline dry runs (scratch output)
+outputs/dry_run/
