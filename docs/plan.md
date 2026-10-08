@@ -10,6 +10,7 @@ From now (Wed 7 Oct 2026) to submission (Nov 12, 23:59 ET, aim for Nov 11).
 - Phases 1 and 2 are detailed. Later phases are an outline and get detailed as we go.
 - From Phase 2 on, new models are built on a git branch and merged only after the data-checker passes, so `main` can always make the weekly predictions.
 - Every choice goes in `docs/decisions.md`. Every matchweek gets an entry in `docs/weekly_log.md`.
+- Every model step (1.5, 2.3, 3.1, 4.6, 5.4) also writes a one-page maths note in `docs/models/<model>.md`: the formula, what each parameter means, how it was estimated, and how it links to standard econometrics (logit, MLE, GLMs, Kalman filter). Shown at the STOP with the results. No waiting before the step starts.
 
 ## Subagents
 
@@ -42,7 +43,7 @@ From now (Wed 7 Oct 2026) to submission (Nov 12, 23:59 ET, aim for Nov 11).
 | D4 | Keep or drop the Dixon-Coles low-score correction | 3.1 |
 | D5 | Paper betting threshold | 4.1 |
 | D6 | Replacement factor for news adjustments | 4.3 |
-| D7 | Logit and XGBoost: in or out | 5.4 |
+| D7 | State-space model design: how strengths drift, how they are updated | 5.4 |
 
 ## Research tasks
 
@@ -56,6 +57,8 @@ From now (Wed 7 Oct 2026) to submission (Nov 12, 23:59 ET, aim for Nov 11).
 | R6 | How promoted teams typically perform in their first season, as a starting prior | Phase 2 |
 | R7 | Terms of use for football-data, Understat and the FPL API | Phase 2 |
 | R8 | Key papers (Maher 1982, Dixon and Coles 1997) and published log loss figures for bookmaker odds, for the write-up | Phase 3 |
+| R9 | Favourite-longshot bias in football betting markets, and the Shin model for removing bookmaker margins | Phase 4 |
+| R10 | Dynamic team strength models, especially Koopman and Lit (2015) on the Premier League: model, estimation method, simpler approximations | Phase 4 |
 
 Research notes go in `docs/research/<topic>.md` with: question, short answer, findings with links and dates, confidence, suggestion.
 
@@ -151,7 +154,7 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 
 Outline, detailed later.
 - 3.1 Poisson on xG (STOP, D3, D4): fit on a blend of xG and goals, recent matches weighted more. Blend weight and decay tuned on 2019-20 to 2022-23. Dixon-Coles low-score correction fitted on actual goals, kept only if it improves the backtest.
-- 3.2 Paired bootstrap tool: resample matches to say whether a gap between two models is real or noise.
+- 3.2 Model comparison tool: Diebold-Mariano test on per-match log loss differences, with the paired bootstrap as a second check. Says whether a gap between two models is real or noise.
 - 3.3 Settle Matchweek 7.
 - 3.4 Matchweek 8 live with the main model.
 - Emile: finish DataCamp courses by Oct 25.
@@ -159,11 +162,12 @@ Outline, detailed later.
 ## Phase 4: Market analysis and Claude's news (Matchweek 9, around Oct 31)
 
 Outline.
-- 4.1 Paper trading backtest (STOP, D5): flat €10 at Bet365 pre-match odds when model and market differ by more than a threshold (try 2, 3 and 5 points). Profit, ROI, number of bets, worst losing run, bootstrap range. Closing line value against market average closing. Max odds as an upper bound, ignoring matches where max odds add up to under 0.97.
+- 4.1 Paper trading backtest (STOP, D5): flat €10 at Bet365 pre-match odds when model and market differ by more than a threshold (try 2, 3 and 5 points). Fractional Kelly staking as a second rule, next to flat stakes. Profit, ROI, number of bets, worst losing run, bootstrap range. Closing line value against market average closing. Max odds as an upper bound, ignoring matches where max odds add up to under 0.97.
 - 4.2 "Who was right" table: matches where model and market differ by more than 5 points, scored separately.
 - 4.3 News adjustments (D6): Python turns the availability file into an attack adjustment per team, using each absent player's share of team xG and a replacement factor. Both versions (with and without news) logged every week.
 - 4.4 Live paper bets logged before kickoff from Matchweek 9.
 - 4.5 Settle Matchweek 8, Matchweek 9 live.
+- 4.6 Market efficiency (STOP): test for favourite-longshot bias (regress outcomes on market implied probabilities, by odds bucket). Compare proportional margin removal with the Shin model, and rescore the market benchmark both ways. Informed by R9.
 - Emile: describe the project in GrowthPlan by Nov 1.
 
 ## Phase 5: Dashboard and agents (Matchweek 10, around Nov 7)
@@ -172,7 +176,8 @@ Outline.
 - 5.1 Streamlit: next matchweek page, model performance page (ladder table, calibration, live log), market and paper trading page.
 - 5.2 analyst agent: one short note per match explaining the prediction, from output files only.
 - 5.3 model-monitor agent: weekly review in the weekly log.
-- 5.4 Stretch (D7): features (rolling xG, Elo difference, rest days, promoted flag), multinomial logit and XGBoost with time-ordered splits and calibration.
+- 5.4 Challenger: dynamic state-space model (STOP, D7). Team attack and defence strengths as hidden states that drift each week (random walk), updated after every matchweek with an approximate Kalman filter on goals or xG. Drift size tuned on 2014-15 to 2022-23. Walk-forward backtest, compared with the static Poisson using the 3.2 tool. Informed by R10. Built on a branch, starting in Phase 4 if time allows.
+- XGBoost dropped (decision 7 Oct): the challenger is the state-space model instead. Research question 2 becomes: does modelling team strength as a moving state beat a static model?
 - 5.5 Matchweek 10 live. Feature freeze Nov 6.
 
 ## Phase 6: Write-up and submission (Nov 9 to 11)
@@ -180,6 +185,6 @@ Outline.
 Outline.
 - 6.1 Settle the last matchweek, freeze all numbers.
 - 6.2 README with one-command rerun, pinned requirements.
-- 6.3 Write-up draft from decisions.md, weekly_log.md and results. Emile edits.
+- 6.3 Write-up draft from decisions.md, weekly_log.md and results. Emile edits. Include Elo as a logit with stochastic gradient updates.
 - 6.4 Demo video script, recording.
 - 6.5 Submit by Nov 11. Emile books and takes the final test (Nov 9 to 15).
