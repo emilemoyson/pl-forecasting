@@ -31,7 +31,7 @@ EPS = 1e-15  # floor for log(p) so a 0 on the actual result gives a large, finit
 # Fixed colour per model (the model ladder order), so a model keeps its colour on every chart.
 MODEL_COLORS = {
     "baseline": "#2a78d6", "elo": "#eb6834", "poisson_goals": "#1baf7a", "poisson_xg": "#eda100",
-    "dixon_coles": "#e87ba4", "mnlogit": "#008300", "xgboost": "#4a3aa7", "market": "#e34948",
+    "dixon_coles": "#e87ba4", "state_space": "#008300", "market": "#e34948",
 }
 
 

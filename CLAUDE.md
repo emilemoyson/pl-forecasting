@@ -35,8 +35,7 @@ The market comparison is the heart of the project. When in doubt, spend effort t
 | `poisson_goals` | Poisson GLM: goals ~ home + attack team + defence team |
 | `poisson_xg` | Same, fitted on xG (or an xG/goals blend), recent matches weighted more. Main model |
 | `dixon_coles` | Poisson + low-score correction. Kept only if the backtest says it helps |
-| `mnlogit` | Multinomial logit on pre-kickoff features |
-| `xgboost` | Gradient boosted trees on the same features, calibrated afterwards |
+| `state_space` | Team strengths as hidden states that drift each week, updated with an approximate Kalman filter. The challenger model |
 | `market` | Bookmaker odds with the margin removed. The benchmark |
 
 ## Prediction format (every model)
