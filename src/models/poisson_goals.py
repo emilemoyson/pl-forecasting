@@ -19,6 +19,8 @@ from src.models.common import BACKTEST_SEASONS, ROOT_DIR, load_matches, save_bac
 
 MODEL = "poisson_goals"
 OUT_DIR = ROOT_DIR / "outputs" / MODEL
+# Accepted at D2 (2026-10-08). Used for live predictions.
+ACCEPTED = pc.PoissonParams(window_days=365, ridge=3.0, promoted_prior="relegated")
 TUNING_SEASONS = ["1617", "1718", "1819", "1920", "2021", "2122", "2223"]
 GRID = {
     "window_days": [365, 548, 730],

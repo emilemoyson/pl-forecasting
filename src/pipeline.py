@@ -8,7 +8,7 @@ Steps:
 1. Refresh 2026-27 data (football-data, Understat, FPL) and rebuild matches.parquet.
 2. Check every finished FPL fixture is in matches.parquet (no stale data).
 3. Read the matchweek's fixtures from FPL. Refuse if any has kicked off.
-4. Predict with baseline and Elo; write mwXX.csv.
+4. Predict with baseline, Elo, Poisson goals and Poisson xG; write mwXX.csv.
 5. Download football-data's fixtures.csv (pre-match odds), log the market's
    probabilities with the collection time; write mwXX_market.csv.
 6. Check: probabilities sum to 1, every timestamp is before its kickoff.
@@ -32,7 +32,8 @@ from src.clean.build_matches import make_match_id
 from src.clean.team_names import to_canonical
 from src.clean.times import uk_local_to_utc
 from src.collect import download_fpl, download_results, download_understat
-from src.models import baseline, elo, market
+from src.models import baseline, elo, market, poisson_goals, poisson_xg
+from src.models import poisson_core as pc
 from src.models.common import PRED_COLS, PROB_COLS, ROOT_DIR, load_matches, to_standard, utc_now
 
 SEASON = "2627"
@@ -93,6 +94,15 @@ def matchweek_fixtures(fixtures: pd.DataFrame, mw: int, now_utc: pd.Timestamp) -
     if not started.empty:
         raise RuntimeError(f"matchweek {mw} already has started matches: {list(started['match_id'])}")
     return mwf[["match_id", "season", "home", "away", "kickoff_utc"]]
+
+
+def poisson_rows(matches: pd.DataFrame, mwf: pd.DataFrame, module, now: pd.Timestamp) -> pd.DataFrame:
+    """Live Poisson predictions: fit on matches before today (UTC), with expected goals."""
+    p = module.ACCEPTED
+    probs, lam, mu, _ = pc.predict_fixtures(matches, mwf, p, now.tz_localize(None).normalize())
+    rows = to_standard(mwf["match_id"], probs, module.MODEL, p.version(module.MODEL))
+    rows["exp_home_goals"], rows["exp_away_goals"] = lam.round(4), mu.round(4)
+    return rows
 
 
 # ---------- 5: market ----------
@@ -211,11 +221,13 @@ def run(mw: int, refresh: bool = True, with_market: bool = True, publish: bool =
 
     # 1) compute everything
     elo_rows, ratings = elo.predict_fixtures(matches, mwf)
-    preds = pd.concat([baseline.predict_fixtures(matches, mwf), elo_rows], ignore_index=True)
+    preds = pd.concat([baseline.predict_fixtures(matches, mwf), elo_rows,
+                       poisson_rows(matches, mwf, poisson_goals, now),
+                       poisson_rows(matches, mwf, poisson_xg, now)], ignore_index=True)
     preds = preds.merge(mwf[["match_id", "kickoff_utc"]], on="match_id")
     preds["kickoff_utc"] = preds["kickoff_utc"].dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     preds["git_commit"] = commit
-    preds = preds[PRED_COLS + ["kickoff_utc", "git_commit"]]
+    preds = preds[PRED_COLS + ["exp_home_goals", "exp_away_goals", "kickoff_utc", "git_commit"]]
     if not market_only:
         check_rows(preds, len(mwf), f"mw{mw:02d}.csv")
 

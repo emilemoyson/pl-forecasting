@@ -25,6 +25,9 @@ from src.models.poisson_goals import backtest
 
 MODEL = "poisson_xg"
 OUT_DIR = ROOT_DIR / "outputs" / MODEL
+# Accepted at D3 and D4 (2026-10-08). Used for live predictions.
+ACCEPTED = pc.PoissonParams(window_days=365, ridge=3.0, promoted_prior="relegated", xg_weight=0.75,
+                            half_life_days=480.0, dixon_coles=False)
 TUNING_SEASONS = ["1920", "2021", "2122", "2223"]
 GRID = {
     "xg_weight": [0.0, 0.25, 0.5, 0.75, 1.0],

@@ -108,3 +108,16 @@ Log loss, lower is better.
 - **Close to the market in 2024-25.** It is 0.002 behind the market there.
 - **Behind Elo in 2023-24.**
 - **Gap to the market overall:** 0.021.
+
+## Flag for Matchweek 7: too few draws, too many goals
+
+Check on the backtest seasons (`outputs/poisson_xg/draw_goals_check.csv`, from `python -m src.evaluate.model_checks poisson_xg`):
+
+| Season | Predicted draws | Actual draws | Gap (points) | Predicted goals per team | Actual goals per team |
+|---|---|---|---|---|---|
+| 2023-24 | 21.2% | 21.6% | -0.4 | 1.60 | 1.64 |
+| 2024-25 | 20.8% | 24.5% | -3.6 | 1.65 | 1.47 |
+| 2025-26 | 23.1% | 27.4% | -4.3 | 1.47 | 1.38 |
+| All | 21.7% | 24.5% | -2.8 | 1.57 | 1.49 |
+
+The model predicts fewer draws than happen, by 2.8 points overall and more in the last two seasons. It also expects more goals than are scored. The two are linked: the model is fitted on a blend that is 75% xG, and xG has run above actual goals, so its expected goals are too high, which spreads the scoreline grid and takes probability away from draws. The gap between xG and goals per team per match has grown every season (`outputs/poisson_xg/xg_vs_goals.csv`): 0.05 in 2023-24, 0.13 in 2024-25, 0.15 in 2025-26 and 0.23 so far in 2026-27, so the live predictions this season are likely to be short of draws by more than the backtest average. The goals model has the same pattern, smaller (-2.1 points). No model change for Matchweek 6. To look at for Matchweek 7, chosen on the tuning seasons as always: putting the expected goals back on the actual-goals scale, and a draw adjustment.

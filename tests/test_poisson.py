@@ -88,3 +88,14 @@ def test_poisson_xg_tuning_never_sees_backtest_seasons():
     from src.models import poisson_xg
     assert max(poisson_xg.TUNING_SEASONS) < "2324"
     assert poisson_xg.FIXED["promoted_prior"] == "relegated"  # D2
+
+
+def test_accepted_live_settings_match_the_backtest_files():
+    from src.models import poisson_goals, poisson_xg
+    from src.models.common import BACKTEST_DIR
+    for module in [poisson_goals, poisson_xg]:
+        path = BACKTEST_DIR / f"{module.MODEL}.csv"
+        if not path.exists():
+            pytest.skip("backtest files not built")
+        versions = set(pd.read_csv(path)["model_version"])
+        assert versions == {module.ACCEPTED.version(module.MODEL)}
