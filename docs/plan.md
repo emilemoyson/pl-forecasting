@@ -140,7 +140,7 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 - A test that fails if any prediction or news row has a timestamp at or after its kickoff. Run before every push.
 - Done when: a dry run for Matchweek 7 works without pushing.
 
-### [ ] 2.3 Poisson GLM on goals (STOP, decision D2) (pulled forward to Matchweek 6, 8 Oct)
+### [x] 2.3 Poisson GLM on goals (STOP, decision D2) (pulled forward to Matchweek 6, 8 Oct)
 - On a branch. Two rows per match (one per team): goals ~ home + attack team + defence team, Poisson family, statsmodels.
 - Refit before each matchweek on past matches only. Expected goals for both sides give a scoreline grid (0 to 10 goals each), summed into home / draw / away.
 - Promoted teams' starting strength from R6 and the backtest.
@@ -156,7 +156,7 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 ## Phase 3: Main model on xG (Matchweek 8, Oct 24)
 
 Outline, detailed later.
-- 3.1 Poisson on xG (STOP, D3, D4), pulled forward to Matchweek 6 (8 Oct), built on `poisson-goals` after 2.3, maths note in `docs/models/poisson_xg.md`: fit on a blend of xG and goals, recent matches weighted more. Blend weight and decay tuned on 2019-20 to 2022-23. Dixon-Coles low-score correction fitted on actual goals, kept only if it improves the backtest.
+- [x] 3.1 Poisson on xG (STOP, D3, D4), pulled forward to Matchweek 6 (8 Oct), built on `poisson-goals` after 2.3, maths note in `docs/models/poisson_xg.md`: fit on a blend of xG and goals, recent matches weighted more. Blend weight and decay tuned on 2019-20 to 2022-23. Dixon-Coles low-score correction fitted on actual goals, kept only if it improves log loss on the tuning seasons 2019-20 to 2022-23. D3 and D4 are decided on the tuning seasons only, like D1 and D2; the backtest is reported but never used to choose (correction, 8 Oct).
 - 3.2 (deferred, 8 Oct) Model comparison tool: Diebold-Mariano test on per-match log loss differences, with the paired bootstrap as a second check. Says whether a gap between two models is real or noise.
 - 3.3 Settle Matchweek 7.
 - 3.4 Matchweek 8 live with the main model.
