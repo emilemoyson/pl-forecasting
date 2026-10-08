@@ -140,7 +140,7 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 - A test that fails if any prediction or news row has a timestamp at or after its kickoff. Run before every push.
 - Done when: a dry run for Matchweek 7 works without pushing.
 
-### [ ] 2.3 Poisson GLM on goals (STOP, decision D2) (pulled forward to Matchweek 6, 8 Oct)
+### [x] 2.3 Poisson GLM on goals (STOP, decision D2) (pulled forward to Matchweek 6, 8 Oct)
 - On a branch. Two rows per match (one per team): goals ~ home + attack team + defence team, Poisson family, statsmodels.
 - Refit before each matchweek on past matches only. Expected goals for both sides give a scoreline grid (0 to 10 goals each), summed into home / draw / away.
 - Promoted teams' starting strength from R6 and the backtest.
