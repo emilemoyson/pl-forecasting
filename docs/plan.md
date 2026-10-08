@@ -112,6 +112,7 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 - Writes `predictions/2026-27/mw06.csv`, one row per match per model (baseline, elo), with model_version and the git commit hash.
 - Logs the market's pre-kickoff probabilities from the R1 source in `predictions/2026-27/mw06_market.csv`, with the time the odds were collected.
 - Done when: 10 matches, probabilities sum to 1, every timestamp is before its kickoff.
+- Fallback: if `fixtures.csv` has no Premier League rows by 21:00 UTC Friday, publish `mw06.csv` anyway, then run `python -m src.pipeline --matchweek 6 --publish --market-only` on Saturday before the first kickoff (11:30 UTC).
 
 ### [ ] 1.7 News-checker, first run
 - Who: news-checker, run on Friday after press conferences. Emile's time: 15 min to skim.
