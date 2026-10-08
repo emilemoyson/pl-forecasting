@@ -94,3 +94,5 @@ Two equal teams give the home side 44% against 29% for the away side. That home 
 Log loss, lower is better. Elo closes about 80% of the gap between the baseline and the market.
 
 **Calibration.** Elo is well calibrated across most of the range. The one weak spot is the 70 to 80% bin: it predicted 74% on average and the outcome happened 66% of the time (131 outcomes, about two standard errors). The 80 to 90% bin is fine (84% predicted, 84% observed, 44 outcomes), so this is a mild overconfidence on clear but not overwhelming favourites. Worth watching when the Poisson models arrive.
+
+**To recheck:** the 70 to 80% bin should be rechecked once live matches build up. No fix for now.
