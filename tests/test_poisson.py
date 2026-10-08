@@ -73,3 +73,18 @@ def test_promoted_prior_relegated_average(matches):
     prior = pc.promoted_prior(matches, "2526", p)
     assert set(prior) == {"Leeds", "Burnley", "Sunderland"}
     assert pc.promoted_prior(matches, "2526", pc.PoissonParams(promoted_prior="average")) == {}
+
+
+def test_xg_blend_and_time_decay_weights():
+    m = pd.DataFrame({"date": pd.to_datetime(["2024-01-01", "2023-01-01"]), "home": ["A", "B"], "away": ["B", "A"],
+                      "home_goals": [2, 0], "away_goals": [0, 1], "home_xg": [1.0, 0.4], "away_xg": [0.6, 1.2]})
+    p = pc.PoissonParams(xg_weight=0.75, half_life_days=365)
+    lf = pc.long_format(m, p, pd.Timestamp("2024-01-01"))
+    assert lf["y"].tolist() == pytest.approx([0.75 * 1.0 + 0.25 * 2, 0.75 * 0.4, 0.75 * 0.6, 0.75 * 1.2 + 0.25])
+    assert lf["w"].tolist() == pytest.approx([1.0, 0.5, 1.0, 0.5])  # one half-life older -> half weight
+
+
+def test_poisson_xg_tuning_never_sees_backtest_seasons():
+    from src.models import poisson_xg
+    assert max(poisson_xg.TUNING_SEASONS) < "2324"
+    assert poisson_xg.FIXED["promoted_prior"] == "relegated"  # D2
