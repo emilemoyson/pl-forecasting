@@ -69,6 +69,8 @@ Research notes go in `docs/research/<topic>.md` with: question, short answer, fi
 Deadline: pushed before Fri 9 Oct 23:00 UTC. First kickoff Sat 10 Oct 11:30 UTC.
 Models live this week: baseline, Elo, market. News-checker logs availability (not used in predictions yet).
 
+**Rollout change (8 Oct):** Poisson on goals (2.3) and Poisson on xG (3.1) are pulled forward to go live for Matchweek 6, alongside baseline and Elo. Both are built on the branch `poisson-goals`, added to the pipeline and merged into `main` after the data-checker passes. Hard cutoff: anything not passed by the data-checker by Fri 9 Oct 15:00 UTC does not go live this week and waits for Matchweek 7. 2.1, 2.2 and 3.2 are deferred until after Matchweek 6.
+
 ### [x] 1.0 Setup
 - Who: main agent. Emile's time: 10 min.
 - Subagent files in `.claude/agents/`, Workflow section in CLAUDE.md, empty `docs/research/suggestions.md` and `docs/weekly_log.md`.
@@ -129,16 +131,16 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 
 ## Phase 2: Poisson on goals (Matchweek 7, Oct 17)
 
-### [ ] 2.1 Settle Matchweek 6
+### [ ] 2.1 Settle Matchweek 6 (deferred, 8 Oct)
 - After the last match (Mon 12 Oct). Refresh results, score the live predictions, score news-checker vs the baseline start probabilities (Brier score) using actual starts (R3).
 - First entry in `docs/weekly_log.md`: predictions, results, scores, notable news calls.
 
-### [ ] 2.2 /matchweek command and push guard
+### [ ] 2.2 /matchweek command and push guard (deferred, 8 Oct)
 - A Claude Code command `.claude/commands/matchweek.md` running: refresh, predict, data-checker, news-checker, show results, wait for approval, push.
 - A test that fails if any prediction or news row has a timestamp at or after its kickoff. Run before every push.
 - Done when: a dry run for Matchweek 7 works without pushing.
 
-### [ ] 2.3 Poisson GLM on goals (STOP, decision D2)
+### [ ] 2.3 Poisson GLM on goals (STOP, decision D2) (pulled forward to Matchweek 6, 8 Oct)
 - On a branch. Two rows per match (one per team): goals ~ home + attack team + defence team, Poisson family, statsmodels.
 - Refit before each matchweek on past matches only. Expected goals for both sides give a scoreline grid (0 to 10 goals each), summed into home / draw / away.
 - Promoted teams' starting strength from R6 and the backtest.
@@ -154,8 +156,8 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 ## Phase 3: Main model on xG (Matchweek 8, Oct 24)
 
 Outline, detailed later.
-- 3.1 Poisson on xG (STOP, D3, D4): fit on a blend of xG and goals, recent matches weighted more. Blend weight and decay tuned on 2019-20 to 2022-23. Dixon-Coles low-score correction fitted on actual goals, kept only if it improves the backtest.
-- 3.2 Model comparison tool: Diebold-Mariano test on per-match log loss differences, with the paired bootstrap as a second check. Says whether a gap between two models is real or noise.
+- 3.1 Poisson on xG (STOP, D3, D4), pulled forward to Matchweek 6 (8 Oct), built on `poisson-goals` after 2.3, maths note in `docs/models/poisson_xg.md`: fit on a blend of xG and goals, recent matches weighted more. Blend weight and decay tuned on 2019-20 to 2022-23. Dixon-Coles low-score correction fitted on actual goals, kept only if it improves the backtest.
+- 3.2 (deferred, 8 Oct) Model comparison tool: Diebold-Mariano test on per-match log loss differences, with the paired bootstrap as a second check. Says whether a gap between two models is real or noise.
 - 3.3 Settle Matchweek 7.
 - 3.4 Matchweek 8 live with the main model.
 - Emile: finish DataCamp courses by Oct 25.
