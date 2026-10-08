@@ -96,7 +96,7 @@ Models live this week: baseline, Elo, market. News-checker logs availability (no
 - Done when: probabilities sum to 1, the market clearly beats the baseline.
 - **STOP:** both scores, and the market's average margin per season.
 
-### [ ] 1.5 Elo (STOP, decision D1)
+### [x] 1.5 Elo (STOP, decision D1)
 - Who: main agent, informed by R2. Emile's time: 20 min.
 - Elo with a home advantage term, updated after every match. Between seasons, ratings are pulled partly back to the average. Promoted teams start at the average rating of the relegated teams.
 - Rating difference to home / draw / away probabilities with an ordered logit (statsmodels `OrderedModel`), fitted only on matches before the season being predicted.
