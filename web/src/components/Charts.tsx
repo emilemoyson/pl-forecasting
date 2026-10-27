@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -9,7 +8,6 @@ import {
   LabelList,
   Line,
   LineChart,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -17,63 +15,7 @@ import {
 } from "recharts";
 import type { ModelScore, RacePoint, Standing } from "@/lib/queries";
 import { MODEL_LABELS } from "@/lib/format";
-
-// Recharts writes colors into SVG attributes, so read the CSS tokens once and
-// again whenever the OS theme flips. Defaults are the light values for SSR.
-const TOKEN_NAMES = [
-  "surface", "text-primary", "text-secondary", "text-muted", "grid", "axis", "border",
-  "series-1", "series-2", "series-3", "series-4", "neutral-mark", "diverge-pos", "diverge-neg",
-] as const;
-type Tokens = Record<(typeof TOKEN_NAMES)[number], string>;
-const LIGHT: Tokens = {
-  surface: "#fcfcfb", "text-primary": "#0b0b0b", "text-secondary": "#52514e", "text-muted": "#898781",
-  grid: "#e1e0d9", axis: "#c3c2b7", border: "rgba(11,11,11,0.1)", "series-1": "#2a78d6",
-  "series-2": "#eb6834", "series-3": "#1baf7a", "series-4": "#eda100", "neutral-mark": "#c3c2b7",
-  "diverge-pos": "#2a78d6", "diverge-neg": "#e34948",
-};
-
-function useTokens(): Tokens {
-  const [tokens, setTokens] = useState<Tokens>(LIGHT);
-  useEffect(() => {
-    const read = () => {
-      const style = getComputedStyle(document.documentElement);
-      const next = { ...LIGHT };
-      for (const name of TOKEN_NAMES) next[name] = style.getPropertyValue(`--${name}`).trim() || LIGHT[name];
-      setTokens(next);
-    };
-    read();
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    mq.addEventListener("change", read);
-    return () => mq.removeEventListener("change", read);
-  }, []);
-  return tokens;
-}
-
-function axisProps(t: Tokens) {
-  return {
-    stroke: t.axis,
-    tick: { fill: t["text-muted"], fontSize: 12 },
-    tickLine: false,
-    axisLine: { stroke: t.axis },
-  };
-}
-
-type TipRow = { label: string; value: string; color?: string };
-
-function TipBox({ title, rows }: { title: string; rows: TipRow[] }) {
-  return (
-    <div className="rounded-lg border border-line bg-surface px-3 py-2 text-[12px] shadow-sm">
-      <div className="mb-1 font-semibold text-ink">{title}</div>
-      {rows.map((r) => (
-        <div key={r.label} className="flex items-center gap-2 text-ink-2">
-          {r.color && <span className="inline-block h-2 w-2 rounded-full" style={{ background: r.color }} />}
-          <span>{r.label}</span>
-          <span className="tabular ml-auto pl-4 font-medium text-ink">{r.value}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
+import { axisProps, TipBox, useTokens } from "./charts/common";
 
 const ROW_H = 24;
 
@@ -168,51 +110,6 @@ export function RaceChart({ race, teams }: { race: RacePoint[]; teams: string[] 
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
-  );
-}
-
-/** Goal difference minus xG difference for each team: results better or worse than chance quality.
- * Using differences cancels the league-wide gap between total goals and total xG. */
-export function FinishingChart({ standings }: { standings: Standing[] }) {
-  const t = useTokens();
-  const data = standings
-    .map((s) => {
-      const xgd = Math.round((s.xgf - s.xga) * 10) / 10;
-      return { team: s.team, gd: s.gd, xgd, diff: Math.round((s.gd - xgd) * 10) / 10 };
-    })
-    .sort((a, b) => b.diff - a.diff);
-  const fmt = (n: number) => (n > 0 ? `+${n.toFixed(1)}` : n.toFixed(1));
-  return (
-    <div style={{ height: data.length * ROW_H + 40 }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 0 }} barCategoryGap={4}>
-          <CartesianGrid horizontal={false} stroke={t.grid} />
-          <XAxis type="number" {...axisProps(t)} />
-          <YAxis type="category" dataKey="team" width={160} interval={0} {...axisProps(t)}
-                 tick={{ fill: t["text-secondary"], fontSize: 12 }} />
-          <ReferenceLine x={0} stroke={t.axis} />
-          <Tooltip
-            cursor={{ fill: t.border }}
-            content={({ active, payload }) => {
-              if (!active || !payload?.length) return null;
-              const d = payload[0].payload as (typeof data)[number];
-              return (
-                <TipBox title={d.team} rows={[
-                  { label: "Goal difference", value: d.gd > 0 ? `+${d.gd}` : String(d.gd) },
-                  { label: "xG difference", value: fmt(d.xgd) },
-                  { label: "Over / under", value: fmt(d.diff) },
-                ]} />
-              );
-            }}
-          />
-          <Bar dataKey="diff" radius={4} isAnimationActive={false}>
-            {data.map((d) => (
-              <Cell key={d.team} fill={d.diff >= 0 ? t["diverge-pos"] : t["diverge-neg"]} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
     </div>
   );
 }

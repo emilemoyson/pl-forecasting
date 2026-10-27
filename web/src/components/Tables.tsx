@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { MatchRow, ModelScore, Standing } from "@/lib/queries";
+import Link from "next/link";
+import type { Club, MatchRow, ModelScore, Standing, TeamGame, TeamProfile } from "@/lib/queries";
+import { Crest } from "./Crest";
 import { formatDate, MODEL_LABELS, pct } from "@/lib/format";
 import { SortableTable, type Column } from "./SortableTable";
 
@@ -9,7 +11,6 @@ const signed = (n: number) => (n > 0 ? `+${n}` : String(n));
 
 const STANDING_COLUMNS: Column<Standing>[] = [
   { key: "rank", label: "#", value: (s) => s.rank, align: "right" },
-  { key: "team", label: "Team", value: (s) => s.team },
   { key: "played", label: "P", value: (s) => s.played, align: "right", title: "Played" },
   { key: "won", label: "W", value: (s) => s.won, align: "right", title: "Won" },
   { key: "drawn", label: "D", value: (s) => s.drawn, align: "right", title: "Drawn" },
@@ -22,9 +23,27 @@ const STANDING_COLUMNS: Column<Standing>[] = [
   { key: "points", label: "Pts", value: (s) => s.points, render: (s) => <strong>{s.points}</strong>, align: "right" },
 ];
 
-export function StandingsTable({ standings }: { standings: Standing[] }) {
+type ClubIndex = Record<string, Club>;
+
+/** Team name with crest, linking to the club page. */
+export function TeamCell({ team, clubs }: { team: string; clubs: ClubIndex }) {
+  const c = clubs[team];
   return (
-    <SortableTable rows={standings} columns={STANDING_COLUMNS} rowKey={(s) => s.team}
+    <Link href={`/teams/${encodeURIComponent(team)}`} className="inline-flex items-center gap-2 hover:underline">
+      {c && <Crest badgeCode={c.badgeCode} code={c.code} team={team} size={18} />}
+      {team}
+    </Link>
+  );
+}
+
+const teamColumn = <T extends { team: string }>(clubs: ClubIndex): Column<T> => ({
+  key: "team", label: "Team", value: (r) => r.team, render: (r) => <TeamCell team={r.team} clubs={clubs} />,
+});
+
+export function StandingsTable({ standings, clubs }: { standings: Standing[]; clubs: ClubIndex }) {
+  const columns = [STANDING_COLUMNS[0], teamColumn<Standing>(clubs), ...STANDING_COLUMNS.slice(1)];
+  return (
+    <SortableTable rows={standings} columns={columns} rowKey={(s) => s.team}
                    initialSort={{ key: "rank", dir: "asc" }} />
   );
 }
@@ -103,4 +122,48 @@ export function MatchesTable({ matches }: { matches: MatchRow[] }) {
                      initialSort={{ key: "date", dir: "asc" }} maxHeight={560} />
     </div>
   );
+}
+
+export function DisciplineTable({ profiles, clubs }: { profiles: TeamProfile[]; clubs: ClubIndex }) {
+  const f1 = (v: number) => v.toFixed(1);
+  const columns: Column<TeamProfile>[] = [
+    teamColumn<TeamProfile>(clubs),
+    { key: "shots", label: "Shots", value: (p) => p.shotsPerGame, render: (p) => f1(p.shotsPerGame), align: "right", title: "Per game" },
+    { key: "sot", label: "On target", value: (p) => p.sotPerGame, render: (p) => f1(p.sotPerGame), align: "right", title: "Per game" },
+    { key: "corners", label: "Corners", value: (p) => p.cornersPerGame, render: (p) => f1(p.cornersPerGame), align: "right", title: "Per game" },
+    { key: "fouls", label: "Fouls", value: (p) => p.foulsPerGame, render: (p) => f1(p.foulsPerGame), align: "right", title: "Per game" },
+    { key: "yellows", label: "Yellows", value: (p) => p.yellows, align: "right", title: "Season total" },
+    { key: "reds", label: "Reds", value: (p) => p.reds, align: "right", title: "Season total" },
+    { key: "ppda", label: "PPDA", value: (p) => p.ppda, render: (p) => f1(p.ppda), align: "right",
+      title: "Opponent passes per defensive action. Lower means a harder press" },
+  ];
+  return <SortableTable rows={profiles} columns={columns} rowKey={(p) => p.team} initialSort={{ key: "shots", dir: "desc" }} />;
+}
+
+export function ComebackTable({ profiles, clubs }: { profiles: TeamProfile[]; clubs: ClubIndex }) {
+  const columns: Column<TeamProfile>[] = [
+    teamColumn<TeamProfile>(clubs),
+    { key: "comebackPoints", label: "From behind", value: (p) => p.comebackPoints, align: "right",
+      title: "Points won in games they trailed at half-time" },
+    { key: "blownPoints", label: "Dropped", value: (p) => p.blownPoints, align: "right",
+      title: "Points dropped in games they led at half-time" },
+    { key: "net", label: "Net", value: (p) => p.comebackPoints - p.blownPoints,
+      render: (p) => signed(p.comebackPoints - p.blownPoints), align: "right" },
+  ];
+  return <SortableTable rows={profiles} columns={columns} rowKey={(p) => p.team}
+                        initialSort={{ key: "net", dir: "desc" }} maxHeight={340} />;
+}
+
+export function TeamGamesTable({ games, clubs }: { games: TeamGame[]; clubs: ClubIndex }) {
+  const columns: Column<TeamGame>[] = [
+    { key: "date", label: "Date", value: (g) => g.date, render: (g) => formatDate(g.date) },
+    { key: "venue", label: "Venue", value: (g) => (g.isHome ? "Home" : "Away"), render: (g) => (g.isHome ? "Home" : "Away") },
+    { key: "opponent", label: "Opponent", value: (g) => g.opponent, render: (g) => <TeamCell team={g.opponent} clubs={clubs} /> },
+    { key: "score", label: "Score", value: (g) => g.gf - g.ga, render: (g) => `${g.gf}-${g.ga}`, align: "right" },
+    { key: "xg", label: "xG", value: (g) => g.xgf - g.xga, render: (g) => `${g.xgf.toFixed(1)}-${g.xga.toFixed(1)}`, align: "right" },
+    { key: "pts", label: "Pts", value: (g) => g.pts, align: "right" },
+    { key: "marketP", label: "Market p(result)", value: (g) => g.marketP, render: (g) => pct(g.marketP, 0), align: "right",
+      title: "Closing-odds probability of the result that happened" },
+  ];
+  return <SortableTable rows={games} columns={columns} rowKey={(g) => g.matchId} initialSort={{ key: "date", dir: "asc" }} maxHeight={480} />;
 }
