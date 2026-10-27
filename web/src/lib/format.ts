@@ -17,3 +17,7 @@ export function formatDate(iso: string): string {
     timeZone: "UTC",
   });
 }
+
+/** Shorter display name where the canonical one is long. */
+export const shortName = (team: string) =>
+  ({ "Wolverhampton Wanderers": "Wolves", "Nottingham Forest": "Nott'm Forest" })[team] ?? team;

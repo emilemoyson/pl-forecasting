@@ -10,15 +10,18 @@
     "seed": "node --env-file=.env.local scripts/seed.mjs"
   },
   "dependencies": {
+    "leaflet": "^1.9.4",
     "next": "15.5.4",
     "postgres": "^3.4.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-leaflet": "^5.0.0",
     "recharts": "^2.15.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/leaflet": "^1.9.12",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

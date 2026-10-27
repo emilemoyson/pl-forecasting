@@ -1,6 +1,12 @@
 # PL Forecasting: 2025-26 season dashboard
 
-A Next.js dashboard for the 2025-26 Premier League season: KPI cards, final points, results against xG, the title race, how each model did against the betting market, a sortable league table and every match. Built for the Data Business Visualization class.
+A Next.js dashboard for the 2025-26 Premier League season, built for the Data Business Visualization class. Five tabs:
+
+- **Overview**: KPI cards, a map of England with every club's crest at its ground, final points, the title race.
+- **Season**: league position week by week (bump chart), all 380 results in one grid, half-time to full-time flows, comebacks.
+- **Teams**: attack vs defence and pressing vs penetration maps, luck (points vs expected points), form waves, discipline. Each club has its own page.
+- **Players**: goals vs xG scatter and a searchable leaderboard (Understat).
+- **Forecasting**: models against the market, calibration, biggest upsets, which clubs the model read better, scorelines vs the Poisson model.
 
 The site reads everything from a Postgres database at request time. Match data is not committed to this public repo; it goes from the local pipeline into the database.
 
@@ -15,7 +21,9 @@ outputs/backtest/*.csv          ─┼─ python -m src.publish.export_web ─�
                                                         Next.js page (SQL) ◄──────┘
 ```
 
-Tables: `matches` (380 rows), `predictions` (one row per match and model, 1,900 rows), `model_scores` (log loss, Brier, accuracy per model). The league table, KPIs and points race are SQL queries in `src/lib/queries.ts`.
+Tables: `clubs` (20, with ground coordinates from `data/clubs.csv`), `matches` (380, with half-time score, shots, cards, xG, expected points, pressing and odds), `predictions` (1,900), `model_scores`, `players` (537), `calibration` and `scorelines`. Anything that needs real maths (log loss, calibration, expected scorelines) is computed in Python; tables, positions by week, form and team profiles are SQL queries in `src/lib/queries.ts`.
+
+The map uses Esri canvas tiles (no API key). Crests load from the Premier League image server; a monogram shows if one fails.
 
 ## Deploying on Vercel
 
